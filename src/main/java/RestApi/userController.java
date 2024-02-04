@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +15,8 @@ import java.util.List;
 public class userController {
     @Autowired
     JdbcTemplate jdbcTemplate;
+    @Autowired
+    private  EmployeeDao e;
 
     @GetMapping("/employee")
     public ResponseEntity<List<Employee>> getAllCustomer() {
@@ -28,12 +27,19 @@ public class userController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createStudent(@RequestBody Employee employee) {
-        String insertQuery=String.format("INSERT INTO Empl1(%s,%s,%s,%s)VALUES(?,?,?,?)",employee.getEmpcode(),employee.getEname(),employee.getEmpage(),employee.getEsalary());
-        jdbcTemplate.update(insertQuery);
-
-       //jdbcTemplate.update("Insert into Empl1(empcode,ename,empage,esalary)values(?,?,?,?)",employee.getEmpcode(),employee.getEname(),employee.getEmpage(),employee.getEsalary());
-        return new ResponseEntity<>("inserted successfully", HttpStatus.CREATED);
+    public ResponseEntity<String> saveEmployee(@RequestBody Employee employee) {
+       e.save(new Employee(employee.getEmpcode(),employee.getEname(),employee.getEmpage(),employee.getEsalary()));
+        return new ResponseEntity<>("Employee was created successfully.", HttpStatus.CREATED);
 
     }
+    @DeleteMapping("/employee/{empcode}")
+        public String delete(@PathVariable int empcode)
+        {
+        return e.delete(empcode)+"Employee deleted sucessfully";
+    }
+    @PutMapping("/update/{empcode}")
+    public String updateEmployee(@RequestBody Employee employee,@PathVariable int empcode){
+        return  e.update(employee,empcode)+"Employee updated";
+    }
+
 }
